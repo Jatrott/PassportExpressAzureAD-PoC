@@ -1,0 +1,51 @@
+{
+  "name": "passport-express-4.x-azure-ad",
+  "version": "0.0.1",
+  "description": "Microsoft graph using express 4.x app with Passport for authentication to Azure AD.",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./lib/server.js",
+    "test:unit": "jest  --runInBand",
+    "test": "npm run lint && npm run test:unit",
+    "watch": "concurrently --kill-others \"tsc -w\" \"nodemon --inspect ./lib/app.js\"",
+    "lint": "tslint -q -p . -c tslint.json",
+    "lint:fix": "tslint --fix -p . -c tslint.json",
+    "debug": "nodemon --inspect ./lib/app.js | bunyan"
+  },
+  "keywords": [
+    "example",
+    "express",
+    "passport",
+    "passport-azure-ad",
+    "azure",
+    "azure-ad"
+  ],  
+  "license": "MIT",
+  },
+  "dependencies": {
+    "@types/simple-oauth2": "^2.2.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "dotenv": "^8.1.0",
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "express-session": "^1.16.1",
+    "morgan": "^1.9.1",
+    "node-fetch": "^2.6.0",
+    "passport": "^0.4.0",
+    "passport-azure-ad": "^4.1.0",
+    "simple-oauth2": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/connect-ensure-login": "^0.1.5",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.1",
+    "@types/node": "^12.7.5",
+    "@types/node-fetch": "^2.5.1",
+    "@types/passport": "^1.0.1",
+    "@types/passport-azure-ad": "^4.0.3",
+    "connect-ensure-login": "^0.1.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
+  }
+}
