@@ -23,12 +23,12 @@ const azureStrategyOptions: azure_ad.IOIDCStrategyOptionWithRequest = {
   responseType: 'code id_token',
   responseMode: 'form_post',
   redirectUrl: baseUrl + redirectPath,
-  allowHttpForRedirectUrl: true, // in production make false
-  validateIssuer: false, // in production make true
+  allowHttpForRedirectUrl: process.env.ALLOW_HTTP === 'true', // in production should be false
+  validateIssuer: true,
   isB2C: false,
-  issuer: null,
+  issuer: process.env.ISSUER,
   passReqToCallback: true,
-  scope: ['profile', 'offline_access', 'https://graph.microsoft.com/user.readwrite'], // remove offline_access for app only access
+  scope: ['profile', 'offline_access', 'https://graph.microsoft.com/user.read'], // remove offline_access for app only access
   loggingLevel: 'info',
   nonceLifetime: null, // defaults to 3600 seconds
   nonceMaxAmount: 10, // 10 is default
@@ -48,9 +48,14 @@ async function processAzureStrategy(
   params: any,
   done: azure_ad.VerifyCallback) {
 
+  if (req.user) { 
+    return done(null, { ...req.user, oauthToken: params } ); 
+  }
+
   if (!profile.oid) {
     return done(new Error('No oid found'), null);
   }
+
   process.nextTick(async () => {
     return done(null, { ...profile, oauthToken: params }); // Done and include OauthToken in the profile.
   });
@@ -115,7 +120,7 @@ app.set('view engine', 'ejs');
 app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(require('cookie-parser')()); // required by Azure-AD return parsing
-app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(require('express-session')({ secret: process.env.COOKIE_SECRET, resave: false, saveUninitialized: false }));
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.
@@ -158,6 +163,8 @@ app.get('/logout', (req, res, next) => {
 app.get('/profile',
   ensureLoggedIn,
   async (req, res, next) => {
+    // Keeping things simple we make a direct call to the graph. 
+    // Note that the /me node contains a preferredLanguage field that is not in the oath profile.
     const response = await fetch('https://graph.microsoft.com/v1.0/me', { headers: { Authorization: `Bearer ${req.user.oauthToken.access_token}` } });
     if (!response.ok) { return next(response.statusText); }
     const profile = await response.json();
